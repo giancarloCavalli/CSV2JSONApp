@@ -1,12 +1,34 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 
 public class Csv2Json {
 	private String[] header;
+	private String originalContent;
 	
-	public Csv2Json(String firstLine) {
-		header = firstLine.split(";");
+	public Csv2Json(String csvText) {
+		setOriginalContent(csvText);
 	}
 	
-	public String getJsonObject(String csvData) {
+	public String getJsonObjectArray() {
+		StringBuilder json = new StringBuilder();
+		json.append("[\n");
+		BufferedReader reader = new BufferedReader(new StringReader(this.originalContent));
+		try {
+			setHeader(reader.readLine());
+			String str;
+			while((str = reader.readLine()) != null) {
+				json.append("\t"+getJsonObject(str)+",\n");
+			}
+		} catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+		json.replace(json.lastIndexOf(","), json.lastIndexOf(",")+1, "");
+		json.append("]");
+		return String.valueOf(json);
+	}
+	
+	private String getJsonObject(String csvData) {
 		String[] csvFields = csvData.split(";");
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
@@ -14,16 +36,16 @@ public class Csv2Json {
 		for (int i = 0; i < header.length-1; i++) {
 			value = csvFields[i];
 			if(isNumeric(value))
-				sb.append("\n \""+header[i]+"\" : "+convertToNumber(value)+", ");
+				sb.append("\n\t\t\""+header[i]+"\" : "+convertToNumber(value)+", ");
 			else
-				sb.append("\n \""+header[i]+"\" : \""+value+"\", ");
+				sb.append("\n\t\t\""+header[i]+"\" : \""+value+"\", ");
 		}
 		value = csvFields[header.length-1];
 		if(isNumeric(value))
-			sb.append("\n \""+header[header.length-1]+"\" : "+convertToNumber(value));
+			sb.append("\n\t\t\""+header[header.length-1]+"\" : "+convertToNumber(value));
 		else
-			sb.append("\n \""+header[header.length-1]+"\" : \""+value+"\"");
-		sb.append("\n}\n");
+			sb.append("\n\t\t\""+header[header.length-1]+"\" : \""+value+"\"");
+		sb.append("\n\t}");
 		return String.valueOf(sb);
 	}
 	
@@ -36,6 +58,23 @@ public class Csv2Json {
 		return true;
 	}
 	
+	
+	public String getOriginalContent() {
+		return originalContent;
+	}
+
+	public void setOriginalContent(String originalContent) {
+		this.originalContent = originalContent;
+	}
+
+	public String[] getHeader() {
+		return header;
+	}
+
+	public void setHeader(String header) {
+		this.header = header.split(";");
+	}
+
 	private String convertToNumber(String value) {		
 		return value.replace(',', '.');
 	}

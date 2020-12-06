@@ -101,16 +101,8 @@ public class App {
 		btnConvertJson.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaJSON.setText("");
-				BufferedReader reader = new BufferedReader(new StringReader(textAreaCSV.getText()));
-				try {
-					Csv2Json csvConverter = new Csv2Json(reader.readLine());
-					String str;
-					while((str = reader.readLine()) != null) {
-						textAreaJSON.append(csvConverter.getJsonObject(str));
-					}
-				} catch(IOException ioe) {
-					ioe.printStackTrace();
-				}
+				Csv2Json csv = new Csv2Json(textAreaCSV.getText());
+				textAreaJSON.append(csv.getJsonObjectArray());
 			}
 		});
 		btnConvertJson.setFont(new Font("Arial", Font.BOLD, 14));
