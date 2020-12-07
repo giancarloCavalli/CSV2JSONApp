@@ -4,10 +4,12 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -19,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 
@@ -56,7 +59,7 @@ public class App {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 1189, 564);
+		frame.setBounds(100, 100, 1189, 579);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -118,14 +121,7 @@ public class App {
 		btnBuscarCsv.setBounds(10, 94, 80, 23);
 		btnBuscarCsv.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
-				chooser.setFileFilter(filter);
-				int retVal = chooser.showOpenDialog(null);
-				if(retVal == JFileChooser.APPROVE_OPTION)
-					tfCsvFile.setText(chooser.getSelectedFile().getAbsolutePath());
-				else
-					JOptionPane.showMessageDialog(frame, "Arquivo não encontrado!");
+				searchFile(tfCsvFile, "csv");
 			}
 		});
 		frame.getContentPane().add(btnBuscarCsv);
@@ -134,38 +130,10 @@ public class App {
 		btnCarregarCsv.setBounds(402, 95, 89, 23);
 		btnCarregarCsv.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String msg = "";
-				File file = new File(tfCsvFile.getText());
-				if(tfCsvFile.getText().isEmpty())
-					msg = "Busque um arquivo para então carregá-lo.";
-				else {
-					try {
-						BufferedReader br = new BufferedReader(new FileReader(file));
-						textAreaCSV.setText("");
-							try {
-								String line = br.readLine().replace("ï»¿", "");
-								while(line != null) {
-									textAreaCSV.append(line+"\n");
-									line = br.readLine();
-								}
-								msg = "Arquivo lido com sucesso! (:";
-							} catch (EOFException eofe) {
-								msg = "Arquivo lido com sucesso! (:";
-							} catch (IOException ioe) {
-								msg = "Erro na leitura do arquivo. ):";
-							}
-					} catch (FileNotFoundException fnfe) {
-						msg = "O arquivo informado não existe. Verifique antes de prosseguir!";
-					}
-				}
-				JOptionPane.showMessageDialog(frame, msg);
+				loadFile(tfCsvFile, textAreaCSV);
 			}
 		});
 		frame.getContentPane().add(btnCarregarCsv);
-		
-		JButton btnBuscarJson = new JButton("Buscar");
-		btnBuscarJson.setBounds(682, 95, 80, 23);
-		frame.getContentPane().add(btnBuscarJson);
 		
 		tfJsonFile = new JTextField();
 		tfJsonFile.setBounds(772, 96, 292, 20);
@@ -173,8 +141,123 @@ public class App {
 		tfJsonFile.setColumns(10);
 		frame.getContentPane().add(tfJsonFile);
 		
+		JButton btnBuscarJson = new JButton("Buscar");
+		btnBuscarJson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchFile(tfJsonFile, "json");
+			}
+		});
+		btnBuscarJson.setBounds(682, 95, 80, 23);
+		frame.getContentPane().add(btnBuscarJson);
+		
 		JButton btnCarregarJson = new JButton("Carregar");
+		btnCarregarJson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loadFile(tfJsonFile, textAreaJSON);
+			}
+		});
 		btnCarregarJson.setBounds(1074, 96, 89, 23);
 		frame.getContentPane().add(btnCarregarJson);
+		
+		JButton btnSalvarJson = new JButton("Salvar");
+		btnSalvarJson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveFile(textAreaJSON.getText(), "json");
+			}
+		});
+		btnSalvarJson.setBounds(682, 501, 107, 23);
+		frame.getContentPane().add(btnSalvarJson);
+		
+		JButton btnLimparJson = new JButton("Limpar");
+		btnLimparJson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				textAreaJSON.setText("");
+			}
+		});
+		btnLimparJson.setBounds(799, 501, 89, 23);
+		frame.getContentPane().add(btnLimparJson);
+		
+		JButton btnSalvarCsv = new JButton("Salvar");
+		btnSalvarCsv.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveFile(textAreaCSV.getText(), "csv");
+			}
+		});
+		btnSalvarCsv.setBounds(10, 501, 107, 23);
+		frame.getContentPane().add(btnSalvarCsv);
+		
+		JButton btnLimparCsv = new JButton("Limpar");
+		btnLimparCsv.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				textAreaCSV.setText("");
+			}
+		});
+		btnLimparCsv.setBounds(127, 501, 89, 23);
+		frame.getContentPane().add(btnLimparCsv);
 	}
+
+	protected void saveFile(String dataToBeSaved, String fileType) {
+		String msg = "";
+		if(dataToBeSaved.isBlank() || dataToBeSaved.isEmpty())
+			msg = "Não há dados a serem salvos!";
+		else {
+			JFileChooser chooser = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(fileType, fileType);
+			chooser.setFileFilter(filter);
+			int retVal = chooser.showSaveDialog(null);
+			if(retVal == JFileChooser.APPROVE_OPTION) {
+				File file = chooser.getSelectedFile().getAbsoluteFile();
+				try {
+					BufferedWriter bw = new BufferedWriter(new FileWriter(file+"."+fileType));
+					bw.write(dataToBeSaved);
+					bw.close();
+					msg = "Arquivo salvo com sucesso!";
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+					msg = "Não foi possível salvar o arquivo.";
+				}
+			}
+		}
+		JOptionPane.showMessageDialog(frame, msg);
+	}
+
+	protected void loadFile(JTextField tfContainingPath, JTextArea taToReceiveString) {
+		String msg = "";
+		File file = new File(tfContainingPath.getText());
+		if(tfContainingPath.getText().isEmpty())
+			msg = "Busque um arquivo para então carregá-lo.";
+		else {
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				taToReceiveString.setText("");
+					try {
+						String line = br.readLine().replace("ï»¿", "");
+						while(line != null) {
+							taToReceiveString.append(line+"\n");
+							line = br.readLine();
+						}
+						msg = "Arquivo lido com sucesso! (:";
+					} catch (EOFException eofe) {
+						msg = "Arquivo lido com sucesso! (:";
+					} catch (IOException ioe) {
+						msg = "Erro na leitura do arquivo. ):";
+					}
+			} catch (FileNotFoundException fnfe) {
+				msg = "O arquivo informado não existe. Verifique antes de prosseguir!";
+			}
+		}
+		JOptionPane.showMessageDialog(frame, msg);
+	}
+
+	protected void searchFile(JTextField textField, String fileTypeToBeFiltered) {
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(fileTypeToBeFiltered, fileTypeToBeFiltered);
+		chooser.setFileFilter(filter);
+		int retVal = chooser.showOpenDialog(null);
+		if(retVal == JFileChooser.APPROVE_OPTION)
+			textField.setText(chooser.getSelectedFile().getAbsolutePath());
+		else
+			JOptionPane.showMessageDialog(frame, "Arquivo não encontrado!");
+	}
+	
 }
