@@ -59,19 +59,19 @@ public class Csv2Json {
 	}
 	
 	
-	public String getOriginalContent() {
+	private String getOriginalContent() {
 		return originalContent;
 	}
 
-	public void setOriginalContent(String originalContent) {
+	private void setOriginalContent(String originalContent) {
 		this.originalContent = originalContent;
 	}
 
-	public String[] getHeader() {
+	private String[] getHeader() {
 		return header;
 	}
 
-	public void setHeader(String header) {
+	private void setHeader(String header) {
 		this.header = header.split(";");
 	}
 

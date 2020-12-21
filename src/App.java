@@ -91,16 +91,19 @@ public class App {
 		textAreaJSON.setBackground(Color.LIGHT_GRAY);
 		
 		JButton btnConvertCsv = new JButton("CONVERT TO CSV");
-		btnConvertCsv.setBounds(501, 226, 171, 46);
+		btnConvertCsv.setBounds(501, 300, 171, 46);
 		btnConvertCsv.setFont(new Font("Arial", Font.BOLD, 14));
 		btnConvertCsv.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				textAreaCSV.setText("");
+				Json2Csv json = new Json2Csv(textAreaJSON.getText());
+				textAreaCSV.append(json.getCsv());
 			}
 		});
 		frame.getContentPane().add(btnConvertCsv);
 		
 		JButton btnConvertJson = new JButton("CONVERT TO JSON");
-		btnConvertJson.setBounds(501, 307, 171, 46);
+		btnConvertJson.setBounds(501, 231, 171, 46);
 		btnConvertJson.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaJSON.setText("");
@@ -259,5 +262,4 @@ public class App {
 		else
 			JOptionPane.showMessageDialog(frame, "Arquivo não encontrado!");
 	}
-	
 }
