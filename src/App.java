@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.security.InvalidParameterException;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -96,8 +97,14 @@ public class App {
 		btnConvertCsv.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaCSV.setText("");
-				Json2Csv json = new Json2Csv(textAreaJSON.getText());
-				textAreaCSV.append(json.getCsv());
+				try {
+					Json2Csv json = new Json2Csv(textAreaJSON.getText());
+					textAreaCSV.append(json.getCsv());
+				} catch(InvalidParameterException ipe) {
+					textAreaCSV.append(ipe.getMessage());
+				} catch(IndexOutOfBoundsException ioobe) {
+					textAreaCSV.append(ioobe.getMessage());
+				}
 			}
 		});
 		frame.getContentPane().add(btnConvertCsv);
@@ -107,8 +114,14 @@ public class App {
 		btnConvertJson.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textAreaJSON.setText("");
-				Csv2Json csv = new Csv2Json(textAreaCSV.getText());
-				textAreaJSON.append(csv.getJsonObjectArray());
+				try {
+					Csv2Json csv = new Csv2Json(textAreaCSV.getText());
+					textAreaJSON.append(csv.getJsonObjectArray());
+				} catch(InvalidParameterException ipe) {
+					textAreaJSON.append(ipe.getMessage());
+				} catch(IndexOutOfBoundsException ioobe) {
+					textAreaJSON.append(ioobe.getMessage());
+				}
 			}
 		});
 		btnConvertJson.setFont(new Font("Arial", Font.BOLD, 14));

@@ -7,7 +7,7 @@ public class Csv2Json {
 	private String originalContent;
 	
 	public Csv2Json(String csvText) {
-		setOriginalContent(csvText);
+		setOriginalContent(csvText.strip());
 	}
 	
 	public String getJsonObjectArray() {

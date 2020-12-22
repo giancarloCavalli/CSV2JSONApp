@@ -1,3 +1,4 @@
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,10 +9,24 @@ public class Json2Csv {
 	private ArrayList<JsonObject> jsonObjects = new ArrayList<>();
 	
 	public Json2Csv(String jsonText) {
-		this.originalText = jsonText.strip();
+		setOriginalText(jsonText);
 		setJsonObjects();
 	}
 	
+	private void setOriginalText(String originalText) {
+		if (isValidJson(originalText))
+			this.originalText = originalText.strip();
+		else
+			throw new InvalidParameterException("JSON inválido!");
+	}
+	
+	private boolean isValidJson(String originalText) {
+		final String JSON_PATTERN = "\\[(\n*\t*\s*\\{(\n*\t*\s*\"[_\\-a-zA-Z0-9]+\"\s*:\s*([^a-z^A-Z]+|\"[_\\-a-zA-Z0-9]+\")\s*,\s*)*\n*\t*\s*\"[_\\-a-zA-Z0-9]+\"\s*:\s*([^a-z^A-Z]+|\"[_\\-a-zA-Z0-9]+\")\s*\\}\s*,\s*)*\n*\t*\s*\\{(\n*\t*\s*\"[_\\-a-zA-Z0-9]+\"\s*:\s*([^a-z^A-Z]+|\"[_\\-a-zA-Z0-9]+\")\s*,\s*)*\n*\t*\s*\"[_\\-a-zA-Z0-9]+\"\s*:\s*([^a-z^A-Z]+|\"[_\\-a-zA-Z0-9]+\")\s*\\}\n*\\]"; 
+		Pattern p = Pattern.compile(JSON_PATTERN);
+		Matcher m = p.matcher(originalText);
+		return m.matches();
+	}
+
 	private String[] splitJsonAttributes(String jsonObjectString) {
 		String[] sArr = jsonObjectString.split(",");
 		for (int i = 0; i < sArr.length; i++) {
