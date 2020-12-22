@@ -1,6 +1,9 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.security.InvalidParameterException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Csv2Json {
 	private String[] header;
@@ -11,6 +14,8 @@ public class Csv2Json {
 	}
 	
 	public String getJsonObjectArray() {
+		if(!isValidCsv())
+			throw new InvalidParameterException("CSV inválido!");
 		StringBuilder json = new StringBuilder();
 		json.append("[\n");
 		BufferedReader reader = new BufferedReader(new StringReader(this.originalContent));
@@ -28,6 +33,13 @@ public class Csv2Json {
 		return String.valueOf(json);
 	}
 	
+	private boolean isValidCsv() {
+		final String CSV_PATTERN = ";";
+		Pattern p = Pattern.compile(CSV_PATTERN);
+		Matcher m = p.matcher(originalContent);
+		return m.find();
+	}
+
 	private String getJsonObject(String csvData) {
 		String[] csvFields = csvData.split(";");
 		StringBuilder sb = new StringBuilder();

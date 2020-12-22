@@ -103,7 +103,7 @@ public class App {
 				} catch(InvalidParameterException ipe) {
 					textAreaCSV.append(ipe.getMessage());
 				} catch(IndexOutOfBoundsException ioobe) {
-					textAreaCSV.append(ioobe.getMessage());
+					textAreaCSV.append("JSON inválido!");
 				}
 			}
 		});
@@ -120,7 +120,7 @@ public class App {
 				} catch(InvalidParameterException ipe) {
 					textAreaJSON.append(ipe.getMessage());
 				} catch(IndexOutOfBoundsException ioobe) {
-					textAreaJSON.append(ioobe.getMessage());
+					textAreaJSON.append("CSV inválido!");
 				}
 			}
 		});
